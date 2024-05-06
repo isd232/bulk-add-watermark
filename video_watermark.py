@@ -1,16 +1,27 @@
 import os
 import subprocess
 import tkinter as tk
-from tkinter import filedialog, messagebox, Toplevel, Label
-from PIL import Image, ImageTk
+from tkinter import filedialog, messagebox, Toplevel
 
 
 class VideoWatermarkWindow(Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
+        self.ffmpeg_path = 'C:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe'
+
         self.title("Watermark Videos")
+        # Set initial size of the window
         self.geometry("400x300")
-        self.ffmpeg_path = 'C:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe'  # Update this path
+
+        # Get screen width and height
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+
+        # Calculate position x and y coordinates
+        x = (screen_width - 400) // 2
+        y = (screen_height - 300) // 2
+        # Set the position of the window
+        self.geometry(f'+{x}+{y}')
 
         # Watermark settings
         self.input_folder = tk.StringVar()
@@ -79,4 +90,4 @@ class VideoWatermarkWindow(Toplevel):
                     print(f"Error processing {filename}: {e}")
 
         messagebox.showinfo("Success", f"Watermarking complete! Files saved to: {output_folder}")
-        self.destroy()  # Close this window when done
+        self.destroy()

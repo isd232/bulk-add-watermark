@@ -16,6 +16,8 @@ class WatermarkApp(tk.Tk):
         tk.Button(self, text="Watermark Images", command=self.open_image_watermarking).pack(pady=(10, 5))
         tk.Button(self, text="Watermark Videos", command=self.open_video_watermarking).pack(pady=(10, 5))
 
+
+
     def open_image_watermarking(self):
         ImageWatermarkWindow(self)
 

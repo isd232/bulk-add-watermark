@@ -8,7 +8,21 @@ class ImageWatermarkWindow(Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title("Watermark Images")
-        self.geometry("400x300")
+        self.initialize_ui()
+
+    def initialize_ui(self):
+        # Set initial size of the window
+        window_width = 400
+        window_height = 300
+
+        # Get screen width and height
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+
+        # Calculate position x and y coordinates
+        x = (screen_width - window_width) // 2
+        y = (screen_height - window_height) // 2
+        self.geometry(f'{window_width}x{window_height}+{x}+{y}')  # Set the position of the window
 
         # Watermark settings
         self.images_folder = tk.StringVar()
@@ -45,42 +59,44 @@ class ImageWatermarkWindow(Toplevel):
             messagebox.showerror("Error", "Please select an images folder first.")
             return
 
-        selector_win = Toplevel(self)
-        selector_win.title("Adjust Watermark Position")
+        try:
+            sample_image_path = next(
+                (f for f in os.listdir(images_folder) if f.lower().endswith(('.png', '.jpg', '.jpeg'))), None)
+        except StopIteration:
+            messagebox.showerror("Error", "No image files found in the selected folder.")
+            return
 
-        sample_image_path = next(
-            (f for f in os.listdir(images_folder) if f.lower().endswith(('.png', '.jpg', '.jpeg'))), None)
         if not sample_image_path:
             messagebox.showerror("Error", "No image files found in the selected folder.")
-            selector_win.destroy()
             return
 
         original_image = Image.open(os.path.join(images_folder, sample_image_path)).convert('RGBA')
-
-        screen_width = self.winfo_screenwidth() * 0.8
-        screen_height = self.winfo_screenheight() * 0.8
-        scale_width = screen_width / original_image.width
-        scale_height = screen_height / original_image.height
-        scale = min(scale_width, scale_height)
-        display_image = original_image.resize((int(original_image.width * scale), int(original_image.height * scale)),
-                                              Image.Resampling.LANCZOS)
+        display_image = self.scale_image_to_screen(original_image)
 
         sample_photo = ImageTk.PhotoImage(display_image)
+        selector_win = Toplevel(self)
+        selector_win.title("Adjust Watermark Position")
         label_image = Label(selector_win, image=sample_photo)
         label_image.photo = sample_photo
         label_image.pack()
 
         def on_image_click(event):
-            nonlocal self
             self.rel_x = event.x / display_image.width
             self.rel_y = event.y / display_image.height
             selector_win.destroy()
 
         label_image.bind("<Button-1>", on_image_click)
-
         selector_win.transient(self)
         selector_win.grab_set()
         self.wait_window(selector_win)
+
+    def scale_image_to_screen(self, image):
+        screen_width = self.winfo_screenwidth() * 0.8
+        screen_height = self.winfo_screenheight() * 0.8
+        scale_width = screen_width / image.width
+        scale_height = screen_height / image.height
+        scale = min(scale_width, scale_height)
+        return image.resize((int(image.width * scale), int(image.height * scale)), Image.Resampling.LANCZOS)
 
     def start_watermarking(self):
         images_folder = self.images_folder.get()
