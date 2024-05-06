@@ -1,7 +1,8 @@
 import os
 import subprocess
 import tkinter as tk
-from tkinter import filedialog, messagebox, Toplevel
+from tkinter import filedialog, messagebox, Toplevel, Label
+from PIL import Image, ImageTk
 
 
 class VideoWatermarkWindow(Toplevel):
@@ -78,4 +79,4 @@ class VideoWatermarkWindow(Toplevel):
                     print(f"Error processing {filename}: {e}")
 
         messagebox.showinfo("Success", f"Watermarking complete! Files saved to: {output_folder}")
-        self.destroy()
+        self.destroy()  # Close this window when done
